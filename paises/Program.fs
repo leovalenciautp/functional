@@ -20,7 +20,7 @@ let sigmaSquare (lista: float list) =
     |> fun e -> e/float lista.Length
 
     
-let sigma = sqrt(sigmaSquare numeros)
+let sigma = numeros |> sigmaSquare |> sqrt
 printfn $"Standard Deviation is {sigma}"
 
 
