@@ -126,11 +126,11 @@ let esUnaSecuencia cartas =
     //Pairwise retorna una tupla de dos elementos
     |> Seq.pairwise
     // Con los pares calculamos la diferencia 
-    |> Seq.map (fun e -> snd e - fst e)
+    |> Seq.map (fun (e1,e2) -> e2 - e1)
     // Chequeamos que todos sean 1
     |> Seq.forall (fun e -> e = 1)
 
-let manoEjemplo = [As Treboles; CartaNumero(10,Corazones);Rey Corazones; Jack Corazones; Reina Corazones]
+let manoEjemplo = [As Corazones; CartaNumero(10,Corazones);Rey Corazones; Jack Corazones; Reina Corazones]
 let testSecuencia = 
     manoEjemplo
     |> ordenarMano
