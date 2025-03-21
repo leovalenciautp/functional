@@ -16,7 +16,7 @@ type CartaDeJuego =
     | Rey of Pinta
     | Reina of Pinta
     | Jack of Pinta
-    | CartaNumero of int * Pinta // Quizz, que tyipo es este?
+    | CartaNumero of int * Pinta // Esta es una tupla
 
 //
 // Helper functions for the big homework
@@ -171,7 +171,10 @@ let testFlush = manoEjemplo |> ordenarMano |> encontrarTipoDeFlush
 printfn $"Tipo de flush: {testFlush}"
 
 //
-// Implementacion parcial de evaluar mano
+// Implementacion parcial de evaluar mano.
+// Esta es la funcion principal de la tarea,
+// ya cubrimos 3 de los 5 casos con los Flush
+// Solo queda implementar el resto.
 //
 
 let evaluarMano cartas =
