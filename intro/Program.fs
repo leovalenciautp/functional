@@ -108,3 +108,13 @@ let sigmaSquare (lista: float list) =
 let sigma = sqrt(sigmaSquare medidas)
 
 printfn $"La desviacion standard es {sigma}"
+
+let listaEjemplo = [1..10]
+
+//
+// Agrupamos por el residuo de la division por 2
+// recuerde que el residuo 0 son numeros pares
+// y el residuo 1 son mumeros impares.
+let listaGrupo = listaEjemplo |> List.groupBy (fun e -> e % 2)
+
+// El resultado es: [(1,[1; 3; 5; 7; 9]); (0,[2; 4; 6; 8; 10])]

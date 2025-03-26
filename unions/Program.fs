@@ -130,7 +130,14 @@ let esUnaSecuencia cartas =
     // Chequeamos que todos sean 1
     |> Seq.forall (fun e -> e = 1)
 
-let manoEjemplo = [As Corazones; CartaNumero(10,Corazones);Rey Corazones; Jack Corazones; Reina Corazones]
+let manoEjemplo = 
+    [
+        CartaNumero(8,Corazones)
+        CartaNumero(8,Treboles)
+        CartaNumero(8,Diamantes)
+        CartaNumero(9,Picas) 
+        CartaNumero(9,Diamantes)
+    ]
 let testSecuencia = 
     manoEjemplo
     |> ordenarMano
@@ -171,6 +178,21 @@ let testFlush = manoEjemplo |> ordenarMano |> encontrarTipoDeFlush
 printfn $"Tipo de flush: {testFlush}"
 
 //
+// Esta funcion busca un Full House, y four of a kind.
+// Esta funcion requiere que las cartas esten en orden.
+//
+let encontrarOtrasManos cartas =
+    // Buscamos dos combinaciones, una de 3 y 2
+    // Y otrade 4 iguales.
+    match cartas 
+        |> List.groupBy obtenerValorDeCarta
+        |> List.sortBy (fun (_,e) -> e |> List.length) 
+    with
+    | [(_,[_;_]);(_,[_;_;_])] -> FullHouse
+    | [(_,[_]);(_,[_;_;_;_])] -> FourOfAKind
+    | _ -> Nada
+
+//
 // Implementacion parcial de evaluar mano.
 // Esta es la funcion principal de la tarea,
 // ya cubrimos 3 de los 5 casos con los Flush
@@ -180,8 +202,8 @@ printfn $"Tipo de flush: {testFlush}"
 let evaluarMano cartas =
     let cartasOrdenadas = cartas |> ordenarMano
     match cartasOrdenadas |> mismaPintaEnLista with
-    | true -> encontrarTipoDeFlush cartasOrdenadas
-    | false -> Nada
+    | true -> cartasOrdenadas |> encontrarTipoDeFlush
+    | false -> cartasOrdenadas |> encontrarOtrasManos
 
 let testMano = manoEjemplo |> evaluarMano
 printfn $"Valor de la mano: {testMano}"
