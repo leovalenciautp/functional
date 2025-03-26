@@ -196,6 +196,8 @@ let encontrarOtrasManos cartas =
                 |> List.sortBy (fun (_,e) -> e |> List.length) 
             with
             | [(_,[_]);(_,[_]);(_,[_]);(_,[_;_])] -> Pair
+            | [(_,[_]);(_,[_;_]);(_,[_;_])] -> TwoPairs
+            | [(_,[_]);(_,[_]);(_,[_;_;_])] -> ThreeOfAKind
             | [(_,[_;_]);(_,[_;_;_])] -> FullHouse
             | [(_,[_]);(_,[_;_;_;_])] -> FourOfAKind
             | _ -> Nada

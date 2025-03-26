@@ -118,3 +118,14 @@ let listaEjemplo = [1..10]
 let listaGrupo = listaEjemplo |> List.groupBy (fun e -> e % 2)
 
 // El resultado es: [(1,[1; 3; 5; 7; 9]); (0,[2; 4; 6; 8; 10])]
+
+let evaluarPolinomio x coef =
+    let primerCoef = coef |> List.head
+    coef
+    |> List.skip 1
+    |> List.fold (fun acc e -> acc*x+e) primerCoef
+
+let c = [2.0;1.0]
+
+let resultPol = evaluarPolinomio 2.0 c
+printfn $"{resultPol}"
