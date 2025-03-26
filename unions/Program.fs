@@ -151,6 +151,10 @@ printfn $"Resultado de secuencia: {testSecuencia}"
 // a la vez (es el orden de la declaracion)
 type Mano =
     | Nada
+    | Pair
+    | TwoPairs
+    | ThreeOfAKind
+    | Straight
     | Flush
     | FullHouse 
     | FourOfAKind
@@ -182,15 +186,19 @@ printfn $"Tipo de flush: {testFlush}"
 // Esta funcion requiere que las cartas esten en orden.
 //
 let encontrarOtrasManos cartas =
-    // Buscamos dos combinaciones, una de 3 y 2
-    // Y otrade 4 iguales.
-    match cartas 
-        |> List.groupBy obtenerValorDeCarta
-        |> List.sortBy (fun (_,e) -> e |> List.length) 
-    with
-    | [(_,[_;_]);(_,[_;_;_])] -> FullHouse
-    | [(_,[_]);(_,[_;_;_;_])] -> FourOfAKind
-    | _ -> Nada
+    if cartas |> esUnaSecuencia then
+            Straight
+        else
+            // Buscamos dos combinaciones, una de 3 y 2
+            // Y otrade 4 iguales.
+            match cartas 
+                |> List.groupBy obtenerValorDeCarta
+                |> List.sortBy (fun (_,e) -> e |> List.length) 
+            with
+            | [(_,[_]);(_,[_]);(_,[_]);(_,[_;_])] -> Pair
+            | [(_,[_;_]);(_,[_;_;_])] -> FullHouse
+            | [(_,[_]);(_,[_;_;_;_])] -> FourOfAKind
+            | _ -> Nada
 
 //
 // Implementacion parcial de evaluar mano.
