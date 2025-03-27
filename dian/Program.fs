@@ -1,4 +1,4 @@
-﻿/
+﻿//
 // Convertir de UVT a pesos
 //
 
@@ -8,41 +8,88 @@ let uvtToPesos x =
 let pesosToUvt x =
     x/uvtFactor
 
+type TaxBrackets =
+    {
+        RangoBajo: float
+        RangoAlto: float
+        Impuesto: float
+        Base: float
+    }
+
 let dianTable =
     [
-        (0.0,1090.0,0.0,0.0)
-        (1090.0,1700.0,0.19,0.0)
-        (1700.0,4100.0,0.28,116)
-        (4100.0,8670.0,0.33,788)
-        (8670.0,18970.0,0.35,2296)
-        (18970.0,31000.0,0.37,5901)
-        (31000.0,99999.0,0.39,10352)
+        {
+            RangoBajo = 0.0
+            RangoAlto = 1090.0
+            Impuesto = 0.0
+            Base = 0.0
+        }
+        {
+            RangoBajo = 1090.0
+            RangoAlto = 1700.0
+            Impuesto = 0.19
+            Base = 0.0
+        }
+        {
+            RangoBajo = 1700.0
+            RangoAlto = 4100.0
+            Impuesto = 0.28
+            Base = 116.0
+        }
+        {
+            RangoBajo = 4100.0
+            RangoAlto = 8670.0
+            Impuesto = 0.33
+            Base = 788.0
+        }
+        {
+            RangoBajo = 8670.0
+            RangoAlto = 18970.0
+            Impuesto = 0.35
+            Base = 2296.0
+        }
+        {
+            RangoBajo = 18970.0
+            RangoAlto = 31000.0
+            Impuesto = 0.37
+            Base = 5901.0
+        }
+        {
+            RangoBajo = 31000.0
+            RangoAlto = 999999.0
+            Impuesto = 0.39
+            Base = 10352.0
+        }
+
     ]
 
 //
-// Esta funcion busca en la tabla
-let findTax uvt =
+// Esta funcion busca en la tabla, comparando
+// la uvt con el RangoBajo y el RangoAlto
+//
+let findTaxBracket uvt =
     dianTable
     |> List.find 
-        (fun (l,h,_,_) 
+        (fun bracket 
             ->
-            (uvt >= l) && (uvt < h)
+            uvt >= bracket.RangoBajo && uvt < bracket.RangoAlto
         )
 
 
-let calculateTax uvt (l,_,tax,b) =
-    (uvt-l)*tax+b
+let calculateTax uvt bracket =
+    (uvt-bracket.RangoBajo)*bracket.Impuesto+bracket.Base
 
-let salario = 1_500_000.0*12.0
+let calcularImpuesto uvt =
+    uvt
+    |> findTaxBracket
+    |> calculateTax uvt
+let salario = 30000000.0*12.0
 
-let uvts = 
-    salario
-    |> pesosToUvt
 
 let tax =
-    uvts
-    |> findTax
-    |> calculateTax uvts
+    salario
+    |> pesosToUvt
+    |> calcularImpuesto
     |> uvtToPesos
 
 printfn $"Total a pagar {tax}"
