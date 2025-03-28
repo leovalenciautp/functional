@@ -1,4 +1,6 @@
-﻿type Candidato =
+﻿// Write code or load a sample from sidebar
+
+type Candidato =
     {
         Cedula: int
         Nombre: string
@@ -44,3 +46,41 @@ let resultados =
         {EstadoUno = EnBlanco;EstadoDos=Marcado;EstadoTres=EnBlanco}
         {EstadoUno = EnBlanco;EstadoDos=EnBlanco;EstadoTres=Marcado}
     ]
+
+type Resultado =
+    | CandidatoUno
+    | CandidatoDos
+    | CandidatoTres
+    | Invalido
+    | Blanco
+
+let resultadosIniciales =
+    [
+        (CandidatoUno,0)
+        (CandidatoDos,0)
+        (CandidatoTres,0)
+        (Invalido,0)
+        (Blanco,0)
+    ]
+    |> Map.ofList
+
+let incrementarVoto acumulador key =
+    let total = acumulador |> Map.find key
+    acumulador |> Map.add key (total+1)
+
+let procesarVoto acumulador voto =
+    let incremente = incrementarVoto acumulador
+
+    match (voto.EstadoUno,voto.EstadoDos,voto.EstadoTres) with
+    | (EnBlanco,EnBlanco,EnBlanco) -> incremente Blanco
+
+    | (Marcado, EnBlanco,EnBlanco) -> incremente CandidatoUno
+
+    | (EnBlanco,Marcado,EnBlanco) -> incremente CandidatoDos
+    | (EnBlanco,EnBlanco,Marcado) -> incremente CandidatoTres
+    | _ -> incremente Invalido
+
+let totalizarVotos votos =
+    votos
+    |> List.fold procesarVoto resultadosIniciales
+
