@@ -43,17 +43,17 @@ let atlas =
 // Punto 2 BuscarCapital con tryFind
 
 let buscarCapital pais =
-    match atlas |> List.tryFind (fun (p,_,_) -> p = pais) with
-    | Some((_,c,_)) -> c
-    | None ->
-        printfn $"Capital No encontrada!"
-        ""
+    atlas 
+    |> List.tryFind (fun (p,_,_) -> p = pais)
+    |> Option.map (fun (_,c,_) -> c)
 
 
-let pais = "Alemania"
-let result = buscarCapital pais
 
-printfn $"La capital de {pais} es {result}"
+let pais = "Japon"
+match pais |> buscarCapital with
+| Some nombre -> printfn $"{nombre}"
+| None -> printfn "No existe ese pais"
+
 
 
 //Punto 3 Buscar número de haitantes
