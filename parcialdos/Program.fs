@@ -42,7 +42,7 @@ let totalizarCuentas cuentas =
     cuentas
     |> List.fold (fun total cuenta -> total + cambioMoneda cuenta.Saldo) 0m
 
-let totalizarCuentas2 cuetas =
+let totalizarCuentas2 cuentas =
     cuentas
     |> Seq.map (fun elemento -> elemento.Saldo)
     |> Seq.map cambioMoneda
