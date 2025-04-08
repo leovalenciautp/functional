@@ -50,3 +50,4 @@ let totalizarCuentas2 cuentas =
 
 let portafolio = cuentas |> totalizarCuentas
 printfn $"{portafolio}"
+
