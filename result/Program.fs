@@ -44,8 +44,8 @@ let programa() =
     |> Result.bind otroMasProceso
 
 
-let result = programa()
-match result with
+
+match programa() with
 | Ok x -> printfn $"Perfecto: {x}"
 | Error m -> printfn $"SOS! {m}"
 
