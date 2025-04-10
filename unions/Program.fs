@@ -2,6 +2,41 @@
 // A game of cards
 //
 
+open System
+
+let rnd = new Random() // This is a seed
+
+let lanzarDado() =
+    rnd.Next(1,7)
+
+let lanzarDados() =
+    lanzarDado(),lanzarDado()
+
+// [1..10]
+// |> Seq.iter ( fun _ -> printfn $"{lanzarDado()}")
+
+let generarNumeroUnico low high set =
+    let rec chequearNumero n =
+        if not (set |> Set.contains n) then
+            n
+        else
+            chequearNumero (rnd.Next(low,high+1))
+
+    chequearNumero (rnd.Next(low,high+1))
+
+
+
+let generarMuestra n low high =
+
+    [1..n]
+    |> Seq.fold ( fun set _ -> 
+                    let r = generarNumeroUnico low high set
+                    set |> Set.add r
+    ) Set.empty
+
+let r = generarMuestra 5 1 52
+printfn $"{r}"
+
 //
 // Este es un discriminated union
 //
@@ -18,6 +53,41 @@ type CartaDeJuego =
     | Jack of Pinta
     | CartaNumero of int * Pinta // Esta es una tupla
 
+let baraja = [|
+    for i in [2..10] do CartaNumero(i,Treboles)
+    for i in [2..10] do CartaNumero(i,Corazones)
+    for i in [2..10] do CartaNumero(i,Diamantes)
+    for i in [2..10] do CartaNumero(i,Picas)
+
+    As Corazones
+    As Diamantes
+    As Picas
+    As Treboles
+
+    Jack Corazones
+    Jack Diamantes
+    Jack Picas
+    Jack Treboles
+
+    Reina Corazones
+    Reina Diamantes
+    Reina Picas
+    Reina Treboles
+
+    Rey Corazones
+    Rey Diamantes
+    Rey Picas
+    Rey Treboles
+
+
+|]
+
+
+let generarMano() =
+    generarMuestra 5 0 51
+    |> Seq.iter (fun i -> printfn $"{baraja[i]}")
+
+generarMano()
 //
 // Helper functions for the big homework
 //
