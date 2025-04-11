@@ -24,18 +24,18 @@ let generarNumeroUnico low high set =
 
     chequearNumero (rnd.Next(low,high+1))
 
-
+let generarNumeroUnicoNuevo low high set =
+    Seq.initInfinite (fun _ -> rnd.Next(low,high))
+    |> Seq.pick (fun x -> if set |> Set.contains x then None else Some x)
 
 let generarMuestra n low high =
 
     [1..n]
     |> Seq.fold ( fun set _ -> 
-                    let r = generarNumeroUnico low high set
+                    let r = generarNumeroUnicoNuevo low high set
                     set |> Set.add r
     ) Set.empty
 
-let r = generarMuestra 5 1 52
-printfn $"{r}"
 
 //
 // Este es un discriminated union
@@ -54,40 +54,25 @@ type CartaDeJuego =
     | CartaNumero of int * Pinta // Esta es una tupla
 
 let baraja = [|
-    for i in [2..10] do CartaNumero(i,Treboles)
-    for i in [2..10] do CartaNumero(i,Corazones)
-    for i in [2..10] do CartaNumero(i,Diamantes)
-    for i in [2..10] do CartaNumero(i,Picas)
-
-    As Corazones
-    As Diamantes
-    As Picas
-    As Treboles
-
-    Jack Corazones
-    Jack Diamantes
-    Jack Picas
-    Jack Treboles
-
-    Reina Corazones
-    Reina Diamantes
-    Reina Picas
-    Reina Treboles
-
-    Rey Corazones
-    Rey Diamantes
-    Rey Picas
-    Rey Treboles
-
-
+    for pinta in [Corazones; Diamantes; Picas; Treboles] do
+        As pinta
+        Jack pinta
+        Reina pinta
+        Rey pinta
+        for i in [2..10] do CartaNumero(i,pinta)
+    
 |]
 
 
 let generarMano() =
     generarMuestra 5 0 51
-    |> Seq.iter (fun i -> printfn $"{baraja[i]}")
+    
 
-generarMano()
+let r = generarMano()
+
+r
+|> Seq.iter (fun i -> printfn $"{baraja[i]}")
+
 //
 // Helper functions for the big homework
 //
@@ -285,5 +270,10 @@ let evaluarMano cartas =
     | true -> cartasOrdenadas |> encontrarTipoDeFlush
     | false -> cartasOrdenadas |> encontrarOtrasManos
 
-let testMano = manoEjemplo |> evaluarMano
+let testMano = 
+    r
+    |> Seq.map (fun i -> baraja[i])
+    |> Seq.toList 
+    |> evaluarMano
+
 printfn $"Valor de la mano: {testMano}"
