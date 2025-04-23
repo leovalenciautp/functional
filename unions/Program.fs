@@ -1,8 +1,4 @@
-﻿//
-// A game of cards
-//
-
-open System
+﻿open System
 
 let rnd = new Random() // This is a seed
 
@@ -28,13 +24,13 @@ let generarNumeroUnicoNuevo low high set =
     Seq.initInfinite (fun _ -> rnd.Next(low,high))
     |> Seq.pick (fun x -> if set |> Set.contains x then None else Some x)
 
-let generarMuestra n low high =
+let generarMuestra n low high set =
 
     [1..n]
-    |> Seq.fold ( fun set _ -> 
+    |> Seq.fold ( fun (set, lista) _ -> 
                     let r = generarNumeroUnicoNuevo low high set
-                    set |> Set.add r
-    ) Set.empty
+                    ((set |> Set.add r), r :: lista)
+    ) (set,[])
 
 
 //
@@ -64,14 +60,21 @@ let baraja = [|
 |]
 
 
-let generarMano() =
-    generarMuestra 5 0 51
     
+let generarMano() =
+    [1..4]
+    |> Seq.fold (fun (set,lista) _ ->
+            let (newSet, newLista)=generarMuestra 5 0 52 set
+            newSet, (newLista @ lista)
+            ) (Set.empty,[])
+    |> fun (_,lista) ->
+        lista 
+        |> List.chunkBySize 5
 
 let r = generarMano()
 
 r
-|> Seq.iter (fun i -> printfn $"{baraja[i]}")
+|> Seq.iter (fun i -> printfn $"{i}")
 
 //
 // Helper functions for the big homework
@@ -90,7 +93,7 @@ let obtenerPintaDeCarta carta =
     | CartaNumero(_,pinta) -> pinta
 
 let result = obtenerPintaDeCarta (CartaNumero(10,Corazones))
-printfn $"La pinta de la carta es: {result}"
+//printfn $"La pinta de la carta es: {result}"
 
 //
 // Funcion que chequea si una lista de cartas es de la misma
@@ -108,7 +111,7 @@ let mismaPintaEnLista listaCartas =
     |> List.forall(fun e -> obtenerPintaDeCarta(e) = pintaMuestra)
 
 let test = mismaPintaEnLista [As(Treboles);CartaNumero(10,Corazones);Rey(Treboles);CartaNumero(3,Corazones)]
-printfn $"Misma pinta es {test}"
+//printfn $"Misma pinta es {test}"
 
 //
 // Obtener valor de la carta, esto es util para
@@ -166,8 +169,8 @@ let ordenarMano cartas =
 
 let test2 = ordenarMano [As(Treboles);CartaNumero(10,Corazones);Rey(Treboles);CartaNumero(3,Corazones)]
 
-printfn "Mano ordernada"
-test2 |> List.iter (fun e -> printfn $"{e}")
+// printfn "Mano ordernada"
+// test2 |> List.iter (fun e -> printfn $"{e}")
 
 //
 // Necesitamos una funcion que  nos diga
@@ -198,7 +201,7 @@ let testSecuencia =
     |> ordenarMano
     |> esUnaSecuencia
 
-printfn $"Resultado de secuencia: {testSecuencia}"
+//printfn $"Resultado de secuencia: {testSecuencia}"
 
 
 //
@@ -234,7 +237,7 @@ let encontrarTipoDeFlush cartas =
 
 
 let testFlush = manoEjemplo |> ordenarMano |> encontrarTipoDeFlush
-printfn $"Tipo de flush: {testFlush}"
+//printfn $"Tipo de flush: {testFlush}"
 
 //
 // Esta funcion busca un Full House, y four of a kind.
@@ -272,8 +275,11 @@ let evaluarMano cartas =
 
 let testMano = 
     r
-    |> Seq.map (fun i -> baraja[i])
+    |> Seq.map (fun mano -> mano |> Seq.map (fun i -> baraja[i]) |> Seq.toList )
+    |> Seq.map (fun jugador -> printfn $"{jugador}"; evaluarMano jugador)
     |> Seq.toList 
-    |> evaluarMano
+    //|> evaluarMano
+
+
 
 printfn $"Valor de la mano: {testMano}"
