@@ -1,8 +1,8 @@
 ﻿
 
 let generarImpares n =
-    [0..(n-1)]
-    |> List.map(fun i -> 2*i+1)
+    [1..n]
+    |> List.map(fun i -> 2*i-1)
 
 let r = generarImpares 5
 printfn $"{r}"
