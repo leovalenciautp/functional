@@ -123,3 +123,31 @@ let agruparCuentas cuentas =
 
 agruparCuentas cuentas
 |> List.iter (fun e -> printfn $"{e}")
+
+let calcularTotales cuentas =
+    agruparCuentas cuentas
+    |> List.map 
+        (fun (moneda,lista) ->
+            lista 
+            |> List.map (fun r -> r.Balance)
+            |> List.sum
+            |> fun total -> (moneda,total)
+        )
+let totales = calcularTotales cuentas
+
+printfn $"{totales}"
+
+let convertirMoneda moneda valor =
+    match moneda with 
+    | Dolares -> valor
+    | Pesos -> valor/4200.0m
+    | Euros -> valor*1.14m
+
+let calcularTotalDolares cuentas =
+    calcularTotales cuentas
+    |> List.map (fun (moneda,total) -> convertirMoneda moneda total)
+    //|> List.map convertirMoneda
+    |> List.sum
+
+let dolares = calcularTotalDolares cuentas
+printfn $"%0.2f{dolares}"
