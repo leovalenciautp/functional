@@ -1,6 +1,7 @@
 ﻿open System
 open System.IO
 let presentarMenu() =
+    Console.BackgroundColor <- ConsoleColor.Blue
     Console.Clear()
     Console.ForegroundColor <- ConsoleColor.Cyan
     printfn "Bienvenido al proyecto final!!"
@@ -30,10 +31,13 @@ let agregarInformacion() =
 
 let mostrarInfornacion() =
     Console.ForegroundColor <- ConsoleColor.Green
-    File.ReadAllLines("datos.txt")
-    |> Seq.iter (fun linea ->
-        printfn $"{linea}"
-    )
+    try
+        File.ReadAllLines("datos.txt")
+        |> Seq.iter (fun linea ->
+            printfn $"{linea}"
+        )
+    with
+    | _ -> printfn "No data to display!"
     Console.ForegroundColor <- ConsoleColor.Cyan
     printfn "Presiona cualquier tecla para continuar"
     Console.ReadKey() |> ignore
@@ -46,6 +50,7 @@ let mainLoop() =
         Console.ReadKey()
     )
     |> Seq.takeWhile ( fun o ->
+        printfn ""
         match o.KeyChar with 
         | '1' -> 
             agregarInformacion()
