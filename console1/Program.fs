@@ -38,21 +38,20 @@ Seq.initInfinite (fun _ -> Console.ReadKey().Key)
 |> Seq.takeWhile (fun key -> key <> ConsoleKey.Escape)
 |> Seq.scan (fun state k ->
     dibujarRectanguloAt state.x state.y ConsoleColor.Blue 25 10
-    match k with
-    | ConsoleKey.RightArrow ->
-        dibujarRectanguloAt (state.x+1) state.y ConsoleColor.Red 25 10
-        {state with x = state.x+1}
-    | ConsoleKey.LeftArrow ->
-        dibujarRectanguloAt (state.x-1) state.y ConsoleColor.Red 25 10
-        {state with x = state.x-1}
-    
-    | ConsoleKey.UpArrow ->
-        dibujarRectanguloAt state.x (state.y-1) ConsoleColor.Red 25 10
-        {state with y = state.y-1}
-    | ConsoleKey.DownArrow ->
-        dibujarRectanguloAt state.x (state.y+1) ConsoleColor.Red 25 10
-        {state with y = state.y+1}
-    | _ -> state
+    let newX, newY =
+        match k with
+        | ConsoleKey.RightArrow ->
+            state.x+1, state.y
+        | ConsoleKey.LeftArrow ->
+            state.x-1, state.y
+        | ConsoleKey.UpArrow ->
+            state.x, state.y-1
+        | ConsoleKey.DownArrow ->
+            state.x, state.y+1
+        | _ -> state.x, state.y
+    dibujarRectanguloAt newX newY ConsoleColor.Red 25 10
+    {state with x = newX; y=newY}
+ 
 ) {x=0;y=0}
 |> Seq.toList
 |> ignore
