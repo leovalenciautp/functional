@@ -50,7 +50,7 @@ Seq.initInfinite (fun _ -> Console.ReadKey().Key)
             state.x, state.y+1
         | _ -> state.x, state.y
     dibujarRectanguloAt newX newY ConsoleColor.Red 25 10
-    {state with x = newX; y=newY}
+    {x = newX; y=newY}
  
 ) {x=0;y=0}
 |> Seq.toList
