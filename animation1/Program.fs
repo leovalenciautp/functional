@@ -1,6 +1,20 @@
 ﻿open System
 open System.Threading
 
+
+
+type BulletState={
+    X: int
+    Y: int
+    Fired: bool
+}
+
+let initBulletState = {
+        X=0
+        Y=0
+        Fired=false
+}
+
 //
 // Variable de estadp de nuestro programa
 // Aqui deben ir las cosas que cambian con el
@@ -13,9 +27,7 @@ type State = {
     MoonTheta: float
     AlienX: int
     AlienY: int
-    BulletX: int
-    BulletY: int
-    BulletFired: bool
+    BulletList: BulletState list
 }
 
 //
@@ -69,9 +81,7 @@ let initialState = {
     MoonTheta=0.0
     AlienX = centerX
     AlienY = centerY
-    BulletX = 0
-    BulletY = 0
-    BulletFired = false    
+    BulletList = [] 
 }
 
 //
@@ -83,16 +93,16 @@ let initialState = {
 let updateTick state =
     {state with Tick=state.Tick+1}
 
-
+let createNewBullet bulletList state =
+    let bullet = {X=state.AlienX+2;Y=state.AlienY;Fired=true}
+    bullet :: bulletList
 
 let updateBulletKeyboard key state =
-    if not state.BulletFired then
-        match key with
-        | ConsoleKey.Spacebar ->
-            {state with BulletFired=true;BulletX=state.AlienX+2;BulletY=state.AlienY}
-        | _ -> state
-    else
-        state
+    match key with
+    | ConsoleKey.Spacebar ->
+        let bulletList = createNewBullet state.BulletList state
+        {state with BulletList=bulletList}
+    | _ -> state
 
 let updateAlienKeyboard key state =
     let newX, newY =
@@ -150,13 +160,19 @@ let updateMoon state =
     {state with MoonTheta = (float state.Tick)*moonAngularSpeed}
 
 let updateBullet state =
-    if state.BulletFired then
-        let newX = state.BulletX+1
-        let fired = not (newX > screenWidth-1)
-        {state with BulletX=newX;BulletFired=fired}
-    else
-        state
-//
+    
+    let newBulletList =
+        state.BulletList
+        |> Seq.map (fun bullet ->
+            let newX = bullet.X+1
+            let fired = not (newX > screenWidth-1)
+            {bullet with X=newX;Fired=fired}
+        )
+        |> Seq.filter (fun bullet -> bullet.Fired)
+        |> Seq.toList
+
+    {state with BulletList = newBulletList}
+    
 // Función principal que actualiza el state del app
 // Noten como usamos un pipeline para eso
 //
@@ -254,12 +270,16 @@ let clearAlien state =
 
 
 let displayBullet state =
-    if state.BulletFired then
-        displayMessagetAt state.BulletX state.BulletY ConsoleColor.Red "=>"
+    state.BulletList
+    |> Seq.iter (fun bullet ->
+        displayMessagetAt bullet.X bullet.Y ConsoleColor.Red "=>"
+    )
 
 let clearBullet state =
-    if state.BulletFired then
-        displayMessagetAt state.BulletX state.BulletY ConsoleColor.Red "  "  
+    state.BulletList
+    |> Seq.iter (fun bullet ->
+        displayMessagetAt bullet.X bullet.Y ConsoleColor.Red "  "
+    )
 // 
 // Funcion principal para visualizar
 // cada objecto en la pantalla
