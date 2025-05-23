@@ -221,18 +221,45 @@ let performSleep() =
     Thread.Sleep eventClock
 
 
+//
+// Definicion recursiva del mismo eventLoop
+// En esta forma es mucho mas compacto.
+//
+let rec eventLoop state =
+    if state.Continuar then
+        clearApp state
+        let newState = updateState state
+        displayApp newState
+        performSleep()
+        eventLoop newState
 
+
+//
+// Es bueno ocultar el cursor en esta App
+//
+Console.CursorVisible <- false
 Console.Clear()
 //
 // Real EventLoop for the application
 //
-Seq.initInfinite (fun i -> i)
-|> Seq.scan ( fun state _ -> 
-    clearApp state
-    updateState state
-) initialState 
-|> Seq.takeWhile ( fun state -> state.Continuar)
-|> Seq.iter ( fun state -> 
-    displayApp state
-    performSleep()
-)
+// Seq.initInfinite (fun i -> i)
+// |> Seq.scan ( fun state _ -> 
+//     clearApp state
+//     updateState state
+// ) initialState 
+// |> Seq.takeWhile ( fun state -> state.Continuar)
+// |> Seq.iter ( fun state -> 
+//     displayApp state
+//     performSleep()
+// )
+
+eventLoop initialState
+
+//
+// Restaurando todo antes de retornar al
+// sistema operativo
+//
+Console.Clear()
+Console.CursorVisible <- true
+
+
