@@ -2,21 +2,17 @@
 open System.Threading
 
 
-
+//
+// Cada bala va a llevar su propio estado
+//
 type BulletState={
     X: int
     Y: int
     Fired: bool
 }
 
-let initBulletState = {
-        X=0
-        Y=0
-        Fired=false
-}
-
 //
-// Variable de estadp de nuestro programa
+// Variable de estado de nuestro programa
 // Aqui deben ir las cosas que cambian con el
 // paso del tiempo, o segun el input del usuario
 //
@@ -27,7 +23,7 @@ type State = {
     MoonTheta: float
     AlienX: int
     AlienY: int
-    BulletList: BulletState list
+    BulletList: BulletState list //Las balas activas son una lista ahora
 }
 
 //
@@ -44,7 +40,7 @@ let oneSecond = 1000/eventClock
 
 //
 // Almacenamos el ancho y alto de la pantalla 
-// en estad os variables
+// en estas dos variables
 //
 let screenWidth = Console.BufferWidth
 let screenHeight = Console.BufferHeight
@@ -93,10 +89,18 @@ let initialState = {
 let updateTick state =
     {state with Tick=state.Tick+1}
 
+//
+// Cuando una bala aparece en la pantalla, inicializamos
+// el estado y la agregamos a la lista actual de balas
+//
 let createNewBullet bulletList state =
     let bullet = {X=state.AlienX+2;Y=state.AlienY;Fired=true}
     bullet :: bulletList
 
+//
+// Keyboard function para activar una bala, lo hacemos
+// con la barra espaciadora
+//
 let updateBulletKeyboard key state =
     match key with
     | ConsoleKey.Spacebar ->
@@ -104,6 +108,13 @@ let updateBulletKeyboard key state =
         {state with BulletList=bulletList}
     | _ -> state
 
+//
+// Keyboard function para controlar al Alien que aparece en la 
+// pantalla. Lo podemos mover con las flechas.
+// Noten que tenemos codigo para evitar que el Alien se salga
+// de la pantalla (no se peermite coordenadas negativas, ni
+// mayores al ancho y alto de la pantalla)
+//
 let updateAlienKeyboard key state =
     let newX, newY =
         match key with
@@ -119,7 +130,10 @@ let updateAlienKeyboard key state =
 
     {state with AlienX=newX;AlienY=newY}
 
-
+//
+// Funcion principal de manejo de teclado, aqui llamamos
+// a la funcion de teclado de cada componente que lo necesite
+//
 let updateKeyboard key state =
     state
     |> updateAlienKeyboard key
@@ -127,7 +141,8 @@ let updateKeyboard key state =
 //
 // Importante chequear por una condicion de salida
 // en esta App, presionando la tecla Escape hace
-// que el eventLoop pare.
+// que el eventLoop pare. Si cualquier otra tecla es presionada
+// llamamos a la funcion que maneja el teclado.
 //
 let updateExitState state =
     //
@@ -158,6 +173,13 @@ let updateTimer state =
 //
 let updateMoon state =
     {state with MoonTheta = (float state.Tick)*moonAngularSpeed}
+
+//
+// En cada ciclo del eventLoop tenemos que animar las balas
+// La idea es recorrer la lista de balas y actualizar su
+// coordenada X. Si la bala se sale de la margen derecha de la
+// pantalla, se borra de la lista.
+// 
 
 let updateBullet state =
     
@@ -262,19 +284,33 @@ let displayMoon state =
 let clearMoon state =
     displayMessagetAtPolar 8.0 state.MoonTheta ConsoleColor.Yellow "  "
 
+//
+// Funcion para mostrar el Alien
+//
 let displayAlien state =
     displayMessagetAt state.AlienX state.AlienY ConsoleColor.Yellow "👽"
+
+//
+// Funcion para borrar el alien.
+//
 
 let clearAlien state =
     displayMessagetAt state.AlienX state.AlienY ConsoleColor.Yellow "  "
 
-
+//
+// Para mostrar las balas, tenemos que iterar la lista y mostrar
+// una por una
+//
 let displayBullet state =
     state.BulletList
     |> Seq.iter (fun bullet ->
         displayMessagetAt bullet.X bullet.Y ConsoleColor.Red "=>"
     )
 
+//
+// Lo mismo hacemos para borrar las balas, se itera la lista
+// y se borran individualmente
+//
 let clearBullet state =
     state.BulletList
     |> Seq.iter (fun bullet ->
