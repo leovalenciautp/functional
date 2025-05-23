@@ -11,6 +11,11 @@ type State = {
     Timer: int
     Continuar: bool
     MoonTheta: float
+    AlienX: int
+    AlienY: int
+    BulletX: int
+    BulletY: int
+    BulletFired: bool
 }
 
 //
@@ -61,7 +66,12 @@ let initialState = {
     Tick=0
     Timer=0
     Continuar=true
-    MoonTheta=0.0    
+    MoonTheta=0.0
+    AlienX = centerX
+    AlienY = centerY
+    BulletX = 0
+    BulletY = 0
+    BulletFired = false    
 }
 
 //
@@ -73,6 +83,37 @@ let initialState = {
 let updateTick state =
     {state with Tick=state.Tick+1}
 
+
+
+let updateBulletKeyboard key state =
+    if not state.BulletFired then
+        match key with
+        | ConsoleKey.Spacebar ->
+            {state with BulletFired=true;BulletX=state.AlienX+2;BulletY=state.AlienY}
+        | _ -> state
+    else
+        state
+
+let updateAlienKeyboard key state =
+    let newX, newY =
+        match key with
+        | ConsoleKey.UpArrow ->
+            state.AlienX, max 0 (state.AlienY-1)
+        | ConsoleKey.DownArrow ->
+            state.AlienX, min (screenHeight-1) (state.AlienY+1)
+        | ConsoleKey.RightArrow ->
+            min (screenWidth-2) (state.AlienX+1), state.AlienY
+        | ConsoleKey.LeftArrow ->
+            max 0 (state.AlienX-1), state.AlienY
+        | _ -> state.AlienX, state.AlienY
+
+    {state with AlienX=newX;AlienY=newY}
+
+
+let updateKeyboard key state =
+    state
+    |> updateAlienKeyboard key
+    |> updateBulletKeyboard key
 //
 // Importante chequear por una condicion de salida
 // en esta App, presionando la tecla Escape hace
@@ -87,7 +128,7 @@ let updateExitState state =
         match Console.ReadKey(true).Key with
         | ConsoleKey.Escape ->
             {state with Continuar=false}
-        | _ -> state
+        | key -> updateKeyboard key state
     else
         state
 //
@@ -108,6 +149,13 @@ let updateTimer state =
 let updateMoon state =
     {state with MoonTheta = (float state.Tick)*moonAngularSpeed}
 
+let updateBullet state =
+    if state.BulletFired then
+        let newX = state.BulletX+1
+        let fired = not (newX > screenWidth-1)
+        {state with BulletX=newX;BulletFired=fired}
+    else
+        state
 //
 // Función principal que actualiza el state del app
 // Noten como usamos un pipeline para eso
@@ -118,6 +166,7 @@ let updateState state =
     |> updateExitState
     |> updateTimer
     |> updateMoon
+    |> updateBullet
 
 
 //
@@ -195,9 +244,22 @@ let displayMoon state =
 // se vea bien
 //
 let clearMoon state =
-    displayMessagetAtPolar 8.0 state.MoonTheta ConsoleColor.Yellow " "
+    displayMessagetAtPolar 8.0 state.MoonTheta ConsoleColor.Yellow "  "
+
+let displayAlien state =
+    displayMessagetAt state.AlienX state.AlienY ConsoleColor.Yellow "👽"
+
+let clearAlien state =
+    displayMessagetAt state.AlienX state.AlienY ConsoleColor.Yellow "  "
 
 
+let displayBullet state =
+    if state.BulletFired then
+        displayMessagetAt state.BulletX state.BulletY ConsoleColor.Red "=>"
+
+let clearBullet state =
+    if state.BulletFired then
+        displayMessagetAt state.BulletX state.BulletY ConsoleColor.Red "  "  
 // 
 // Funcion principal para visualizar
 // cada objecto en la pantalla
@@ -205,14 +267,17 @@ let clearMoon state =
 let displayApp state =
     displayTimer state
     displayMoon state
+    displayAlien state
+    displayBullet state
 
 //
 // Funcion principal para borrar objectos que sean
 // animados
 //
 let clearApp state =
-    clearMoon state   
-
+    clearMoon state
+    clearAlien state   
+    clearBullet state
 //
 // Es importante que el eventLoop duerma unos cuantos
 // milisegundos para no ocupar el CPU todo el tiempo
