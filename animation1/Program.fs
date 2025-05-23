@@ -165,7 +165,7 @@ let updateBullet state =
         state.BulletList
         |> Seq.map (fun bullet ->
             let newX = bullet.X+1
-            let fired = not (newX > screenWidth-1)
+            let fired = not (newX > screenWidth-2)
             {bullet with X=newX;Fired=fired}
         )
         |> Seq.filter (fun bullet -> bullet.Fired)
